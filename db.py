@@ -8,12 +8,26 @@ import csv
 
 kDefautlOpeningFmt = 'wb'
 kDefaultEncoding = 'utf-8'
-kHeadingNames = ['title', 'abstract', 'location', 'dates', 'locationDescr', 'projectTypeDescr', 'DetailedDescr',
-                 'projectNeed', 'criticalImpacts', 'Benefits', 'cost', 'fundingSrc', 'sponsorAgency']
+kDB = "database.csv"
+kHeadingNames = [
+    'title',
+    'abstract',
+    'location',
+    'dates',
+    'locationDescr',
+    'projectTypeDescr',
+    'DetailedDescr',
+    'projectNeed',
+    'criticalImpacts',
+    'Benefits',
+    'cost',
+    'fundingSrc',
+    'sponsorAgency'
+]
 
 csv.register_dialect(
     'dialect',
-    delimiter = ' ',
+    delimiter = ',',
     quotechar = '"',
     doublequote = False,
     skipinitialspace = True,

@@ -9,7 +9,7 @@ import bswrapper
 from urllib2 import urlopen
 from urllib2 import HTTPError
 from bs4 import BeautifulSoup
-from db import writeLine
+from db import writeLine, kDB, kHeadingNames
 
 # URLS to various sections in the project list.
 URLS = [
@@ -38,10 +38,10 @@ def initDB(dbName, headers):
 def removeImageLinks(urlList):
     for eachLink in urlList:
         if re.search(".jpg", eachLink) or re.search(".pdf", eachLink):
-            print eachLink
             urlList.remove(eachLink)
 
 def main():
+    initDB(kDB, kHeadingNames)
     urls = getAllProjectURLS()
     removeImageLinks(urls)
 
