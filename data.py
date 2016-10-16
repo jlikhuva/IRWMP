@@ -11,6 +11,10 @@ from urllib2 import HTTPError
 from bs4 import BeautifulSoup
 from db import writeLine, kDB, kHeadingNames
 
+# Konstants
+kMetaTableName = "vertical listing"
+kTableData = "td"
+
 # URLS to various sections in the project list.
 URLS = [
     "http://bairwmp.org/projects",
@@ -37,13 +41,42 @@ def initDB(dbName, headers):
 # or pdf files
 def removeImageLinks(urlList):
     for eachLink in urlList:
-        if re.search(".jpg", eachLink) or re.search(".pdf", eachLink):
+        if re.search(".jpg", eachLink) or re.search(".pdf", eachLink) or re.search(".xlsx", eachLink):
             urlList.remove(eachLink)
 
+# Takes in a single url and extract and
+# stores all the "important" data about
+# the given project.
+def extractAndLogData(url):
+    html = bswrapper.fetchHTML(url)
+    bsobj = bswrapper.generateBeautifulSoupObject(html)
+    if bsobj is None:
+        print "Could not create BeautifulSoup Object. Abort"
+        return
+    
+    title = bswrapper.extractHeading(bsobj)
+    if title is not None:
+        metadata = extractMetadata(bsobj)
+        print metadata
+    
+def extractMetadata(bsobj):
+    metadatalist = []
+    table = bsobj.find("table", {"class":kMetaTableName})
+    if table is None:
+        print "We seem to have a sub-folder"
+        return
+    
+    data = table.findAll(kTableData)
+    for each in data:
+        metadatalist.append(each.get_text())
+    return metadatalist
+    
 def main():
     initDB(kDB, kHeadingNames)
     urls = getAllProjectURLS()
     removeImageLinks(urls)
+    for each in urls:
+        extractAndLogData(each)
 
 if __name__ == "__main__":
     main()

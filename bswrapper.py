@@ -209,8 +209,12 @@ kProjectHeadingClass = "documentFirstHeading"
 kProjectHeadingSizeDesc = "h1"
 def extractHeading(bsobj):
     heading = bsobj.findAll(kProjectHeadingSizeDesc, {"class" : kProjectHeadingClass})
-    return heading[0].get_text() # We expect the list returned by findAll to one entry.
-
+    try:
+        return heading[0].get_text()
+    except:
+        print "Error parsing page, you might need to log in"
+        return None
+    
 kFieldClass = "field"
 def extractAllText(bsObject):
     textList = []
