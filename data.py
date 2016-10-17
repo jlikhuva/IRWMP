@@ -118,7 +118,8 @@ def writeData(data, csvWriter):
 
 
 def addToken(csvString, token):
-    token.replace("\"", "") # Remove quotations
+    #token.replace("\"", "") # Remove quotations
+    token +=" "
     csvString.append(token)
 
 def extractMetadata(bsobj):
