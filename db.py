@@ -32,7 +32,7 @@ csv.register_dialect(
     quotechar = '"',
     doublequote = False,
     skipinitialspace = True,
-    lineterminator = '\n',
+    lineterminator = '',
     escapechar = '\\',
     quoting = csv.QUOTE_NONE
 )
