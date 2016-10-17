@@ -57,22 +57,27 @@ def extractAndLogData(url, index, writer):
         index -= 1 #This method sucks. Change it.
         return
 
-    title = bswrapper.extractHeading(bsobj)
+    title = bswrapper.extractHeading(bsobj) # should log this
     if title is None:
-        print "Could not find title. Abort"
         index -= 1
         return
     else:
         csvString = []
-        bswrapper.addProjectNameToProjectList(title.strip())
         addToken(csvString, str(index))
 
         abstract = extractAbstract(bsobj) # should log this in abstract.txt
+        if abstract is None:
+            index -= 1
+            return
 
         '''
         Extract individual metadatum, removing whitespace and commas.
         '''
         metadata = extractMetadata(bsobj)
+        if metadata is None:
+            index -= 1
+            return
+
         location = metadata[2].strip() + "\n" + metadata[3]
         location = location.replace(",", ";").strip()
         addToken(csvString, location)
@@ -114,6 +119,7 @@ def extractAndLogData(url, index, writer):
 
         print "Writing CSV Rows"
         writeData(csvString, writer)
+        bswrapper.addProjectNameToProjectList(title.strip())
 
 def writeData(data, csvWriter):
     csvWriter.writerow(data)
@@ -139,10 +145,18 @@ def extractAbstract(bsobj):
     if abstractArea is None:
         print "The document has no abstract section"
         return
-    abstractText = abstractArea.findAll(bswrapper.kParagraph)[kFirstElem].get_text()
+    abstractText = abstractArea.findAll(bswrapper.kParagraph);
     if abstractText is None:
         print "No abstract text found" #The empty string is not None
-    return abstractText
+
+    if len(abstractText) == 0:
+        abst = bsobj.find(bswrapper.kParagraph, {"class":"documentDescription"})
+        if abst == None:
+            print "abstract encoded differently"
+            return
+        return abst.get_text()
+
+    return abstractText[kFirstElem].get_text()
     
 def main():
     initDB(kDB, kHeadingNames)
@@ -150,11 +164,10 @@ def main():
     # removeImageLinks(urls)
     index = 0
     f = io.open(kDB, "ab")
-    writer = db.csv.writer(f,dialect="dialect")
+    writer = db.csv.writer(f,dialect="dialect", encoding = db.kDefaultEncoding)
     for each in urls:
         extractAndLogData(each, index,writer)
         index += 1
-        break
     f.close()
 
 if __name__ == "__main__":

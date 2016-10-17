@@ -4,7 +4,7 @@
 
 import sys
 import io
-import csv
+import unicodecsv as csv
 
 kDefautlOpeningFmt = 'wb'
 kDefaultEncoding = 'utf-8'
@@ -33,6 +33,7 @@ csv.register_dialect(
     doublequote = False,
     skipinitialspace = True,
     lineterminator = '\n',
+    escapechar = '\\',
     quoting = csv.QUOTE_MINIMAL
 )
 '''
@@ -44,7 +45,7 @@ Message   -- A string to be printed to the console.
 def writeLine(csvFile, dataArray, message):
     print message
     f = io.open(csvFile, kDefautlOpeningFmt)
-    csvWriter = csv.writer(f,dialect="dialect")
+    csvWriter = csv.writer(f,dialect="dialect", encoding = kDefaultEncoding)
     csvWriter.writerow(dataArray)
     f.close()
     print "all [OK]"
