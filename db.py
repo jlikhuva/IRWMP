@@ -10,19 +10,21 @@ kDefautlOpeningFmt = 'wb'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
-    'title',
-    'abstract',
-    'location',
-    'dates',
-    'locationDescr',
-    'projectTypeDescr',
-    'DetailedDescr',
-    'projectNeed',
-    'criticalImpacts',
+    'Title',
+    'Abstract',
+    'Locations', # Counties and subregions
+    'Location (lat/long)'
+    'Start Date',
+    'End Date'
+    'Location Descr',
+    'Project TypeDescr',
+    'Detailed Descr',
+    'Project Need',
+    'Critical Impacts',
     'Benefits',
-    'cost',
-    'fundingSrc',
-    'sponsorAgency'
+    'Cost',
+    'Funding Src',
+    'Sponsor Agency'
 ]
 
 csv.register_dialect(

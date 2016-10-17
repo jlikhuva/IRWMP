@@ -11,13 +11,18 @@ from urllib2 import urlopen
 from urllib2 import HTTPError
 from bs4 import BeautifulSoup
 
-# Constants used when collecting links.
+# Constants used when collecting data
 kBaseUrl = "http://bairwmp.org/projects/archived-projects-2013-plan-update/folder_tabular_view?b_start:int=0&-C"
 kSecondPageUrl = "http://bairwmp.org/projects/archived-projects-2013-plan-update/folder_tabular_view?b_start:int=100&-C="
 kTableEntryClass = "contenttype-irwmpproject"
+
 kTableClassName = "listing"
 kTableHref = "href"
 kHtmlLink = "a"
+kFieldClass = "field"
+kProjectHeadingClass = "documentFirstHeading"
+kProjectHeadingSizeDesc = "h1"
+kParagraph = "p"
 
 # Constants used when storing data
 kProjectNames = "projectNames.txt"
@@ -205,8 +210,7 @@ def extractAndStoreDataFromProjectPage(bsObject):
     # |Files|
     projectBenefitsFile = getProjectBenefitsFile(bsObject)
     '''
-kProjectHeadingClass = "documentFirstHeading"
-kProjectHeadingSizeDesc = "h1"
+
 def extractHeading(bsobj):
     heading = bsobj.findAll(kProjectHeadingSizeDesc, {"class" : kProjectHeadingClass})
     try:
@@ -214,8 +218,7 @@ def extractHeading(bsobj):
     except:
         print "Error parsing page, you might need to log in"
         return None
-    
-kFieldClass = "field"
+
 def extractAllText(bsObject):
     textList = []
     fieldWrapper = bsObject.findAll("div", {"class" : kFieldClass})

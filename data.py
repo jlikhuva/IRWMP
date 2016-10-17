@@ -14,6 +14,7 @@ from db import writeLine, kDB, kHeadingNames
 # Konstants
 kMetaTableName = "vertical listing"
 kTableData = "td"
+kFirstElem = 0
 
 # URLS to various sections in the project list.
 URLS = [
@@ -47,17 +48,32 @@ def removeImageLinks(urlList):
 # Takes in a single url and extract and
 # stores all the "important" data about
 # the given project.
-def extractAndLogData(url):
+def extractAndLogData(url, index):
     html = bswrapper.fetchHTML(url)
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
         print "Could not create BeautifulSoup Object. Abort"
+        index -= 1 #This method sucks. Change it.
         return
-    
+
     title = bswrapper.extractHeading(bsobj)
     if title is not None:
+        # bswrapper.addProjectNameToProjectList(title.strip())
+        '''
+        Extract individual metadatum, removing whitespace and commas.
+        '''
         metadata = extractMetadata(bsobj)
-        print metadata
+        sponsorAgencies = metadata[1].replace(",", "\n").strip()
+        location = metadata[2].strip() + "\n" + metadata[3]
+        location = location.replace(",", "\n").strip()
+
+        locationLatLong = metadata[6].replace(",", " |").strip()
+        startDate = metadata[7]
+        endDate = metadata[8]
+
+        locationDescr = metadata[9].replace(",", "").strip()
+        # abstract = extractAbstract(bsobj)
+        
     
 def extractMetadata(bsobj):
     metadatalist = []
@@ -65,18 +81,31 @@ def extractMetadata(bsobj):
     if table is None:
         print "We seem to have a sub-folder"
         return
-    
+
     data = table.findAll(kTableData)
     for each in data:
         metadatalist.append(each.get_text())
     return metadatalist
+
+def extractAbstract(bsobj):
+    abstractArea = bsobj.find("div", {"class":bswrapper.kFieldClass})
+    if abstractArea is None:
+        print "The document has no abstract section"
+        return
+    abstractText = abstractArea.findAll(bswrapper.kParagraph)[kFirstElem].get_text()
+    if abstractText is None:
+        print "No abstract text found" #The empty string is not None
+    return abstractText
     
 def main():
     initDB(kDB, kHeadingNames)
     urls = getAllProjectURLS()
-    removeImageLinks(urls)
+    # removeImageLinks(urls)
+    index = 0
     for each in urls:
-        extractAndLogData(each)
+        extractAndLogData(each, index)
+        index += 1
+        break
 
 if __name__ == "__main__":
     main()
