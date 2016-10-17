@@ -32,9 +32,9 @@ csv.register_dialect(
     quotechar = '"',
     doublequote = False,
     skipinitialspace = True,
-    lineterminator = '',
+    lineterminator = '\r\n',
     escapechar = '\\',
-    quoting = csv.QUOTE_NONE
+    quoting = csv.QUOTE_ALL
 )
 '''
 Writes a single row into the CSV database.
