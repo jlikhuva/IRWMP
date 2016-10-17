@@ -70,7 +70,7 @@ def extractAndLogData(url, index, writer):
             index -= 1
             return
 
-        location = metadata[2].strip() + "\n" + metadata[3]
+        location = metadata[2].strip() + " | " + metadata[3]
         location = location.replace(",", ";").strip()
         addToken(csvString, location)
 
