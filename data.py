@@ -5,6 +5,7 @@ import sys
 import os
 import io
 import re
+import db
 import bswrapper
 from urllib2 import urlopen
 from urllib2 import HTTPError
@@ -48,7 +49,7 @@ def removeImageLinks(urlList):
 # Takes in a single url and extract and
 # stores all the "important" data about
 # the given project.
-def extractAndLogData(url, index):
+def extractAndLogData(url, index, writer):
     html = bswrapper.fetchHTML(url)
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
@@ -57,24 +58,70 @@ def extractAndLogData(url, index):
         return
 
     title = bswrapper.extractHeading(bsobj)
-    if title is not None:
-        # bswrapper.addProjectNameToProjectList(title.strip())
+    if title is None:
+        print "Could not find title. Abort"
+        index -= 1
+        return
+    else:
+        csvString = []
+        bswrapper.addProjectNameToProjectList(title.strip())
+        addToken(csvString, str(index))
+
+        abstract = extractAbstract(bsobj) # should log this in abstract.txt
+
         '''
         Extract individual metadatum, removing whitespace and commas.
         '''
         metadata = extractMetadata(bsobj)
-        sponsorAgencies = metadata[1].replace(",", "\n").strip()
         location = metadata[2].strip() + "\n" + metadata[3]
-        location = location.replace(",", "\n").strip()
+        location = location.replace(",", ";").strip()
+        addToken(csvString, location)
 
         locationLatLong = metadata[6].replace(",", " |").strip()
+        addToken(csvString, locationLatLong)
+
         startDate = metadata[7]
         endDate = metadata[8]
+        addToken(csvString, startDate)
+        addToken(csvString, endDate)
 
         locationDescr = metadata[9].replace(",", "").strip()
-        # abstract = extractAbstract(bsobj)
-        
-    
+        addToken(csvString, locationDescr)
+
+        projectTypeDescr = ""
+        addToken(csvString, projectTypeDescr)
+
+        detailedDescr = ""
+        addToken(csvString, detailedDescr)
+
+        projectNeed = ""
+        addToken(csvString, projectNeed)
+
+        criticalImpacts = ""
+        addToken(csvString, criticalImpacts)
+
+        benefits = ""
+        addToken(csvString, benefits)
+
+        cost = ""
+        addToken(csvString, cost)
+
+        fundingSrc = ""
+        addToken(csvString, fundingSrc)
+
+        sponsorAgencies = metadata[1].replace(",", "\n").strip()
+        addToken(csvString, sponsorAgencies)
+
+        print "Writing CSV Rows"
+        writeData(csvString, writer)
+
+def writeData(data, csvWriter):
+    csvWriter.writerow(data)
+
+
+def addToken(csvString, token):
+     csvString.append(token)
+
 def extractMetadata(bsobj):
     metadatalist = []
     table = bsobj.find("table", {"class":kMetaTableName})
@@ -102,10 +149,13 @@ def main():
     urls = getAllProjectURLS()
     # removeImageLinks(urls)
     index = 0
+    f = io.open(kDB, "ab")
+    writer = db.csv.writer(f,dialect="dialect")
     for each in urls:
-        extractAndLogData(each, index)
+        extractAndLogData(each, index,writer)
         index += 1
         break
+    f.close()
 
 if __name__ == "__main__":
     main()
