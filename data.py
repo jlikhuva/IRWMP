@@ -56,12 +56,13 @@ def extractAndLogData(url, index, writer):
     else:
         csvString = []
         addToken(csvString, str(index))
+        addToken(csvString, title)
 
         abstract = extractAbstract(bsobj) # should log this in abstract.txt
         if abstract is None:
             index -= 1
             return
-
+        addToken(csvString, abstract)
         '''
         Extract individual metadatum, removing whitespace and commas.
         '''
@@ -111,7 +112,7 @@ def extractAndLogData(url, index, writer):
 
         print "Writing CSV Rows"
         writeData(csvString, writer)
-        bswrapper.addProjectNameToProjectList(title.strip())
+        # bswrapper.addProjectNameToProjectList(title.strip())
 
 def writeData(data, csvWriter):
     csvWriter.writerow(data)

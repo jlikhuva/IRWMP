@@ -10,7 +10,9 @@ kDefautlOpeningFmt = 'wb'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
-    'Title',
+    'Index'
+    'Title'
+    'Abstract',
     'Locations', # Counties and subregions
     'Location (lat/long)',
     'Start Date',
