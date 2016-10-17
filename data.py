@@ -119,7 +119,7 @@ def writeData(data, csvWriter):
 
 
 def addToken(csvString, token):
-    #token.replace("\"", "") # Remove quotations
+    token = token.replace(",", "")
     token +=" "
     csvString.append(token)
 

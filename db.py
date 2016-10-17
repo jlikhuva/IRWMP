@@ -10,8 +10,8 @@ kDefautlOpeningFmt = 'wb'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
-    'Index'
-    'Title'
+    'Index',
+    'Title',
     'Abstract',
     'Locations', # Counties and subregions
     'Location (lat/long)',
@@ -25,7 +25,7 @@ kHeadingNames = [
     'Benefits',
     'Cost',
     'Funding Src',
-    'Sponsor Agency\n'
+    'Sponsor Agency'
 ]
 
 csv.register_dialect(
