@@ -34,7 +34,7 @@ csv.register_dialect(
     skipinitialspace = True,
     lineterminator = '\n',
     escapechar = '\\',
-    quoting = csv.QUOTE_MINIMAL
+    quoting = csv.QUOTE_NONE
 )
 '''
 Writes a single row into the CSV database.
