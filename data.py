@@ -4,7 +4,6 @@
 import sys
 import os
 import io
-import re
 import db
 import bswrapper
 from urllib2 import urlopen
@@ -38,13 +37,6 @@ def getAllProjectURLS():
 def initDB(dbName, headers):
     writeLine(dbName, headers, "Writing CSV headers")
 
-# Removes links that, instead of pointing to
-# individual project pages, point to images.
-# or pdf files
-def removeImageLinks(urlList):
-    for eachLink in urlList:
-        if re.search(".jpg", eachLink) or re.search(".pdf", eachLink) or re.search(".xlsx", eachLink):
-            urlList.remove(eachLink)
 
 # Takes in a single url and extract and
 # stores all the "important" data about
@@ -126,7 +118,8 @@ def writeData(data, csvWriter):
 
 
 def addToken(csvString, token):
-     csvString.append(token)
+    token.replace("\"", "") # Remove quotations
+    csvString.append(token)
 
 def extractMetadata(bsobj):
     metadatalist = []

@@ -6,6 +6,7 @@ stores them.
 '''
 import sys
 import os
+import re
 import io
 from urllib2 import urlopen
 from urllib2 import HTTPError
@@ -86,8 +87,18 @@ def getProjectUrls(bsObject):
     table = bsObject.find('table', {'class': kTableClassName})
     linkWrappers = table.findAll(kHtmlLink)
     for eachWrapper in linkWrappers:
-        listOfLinks.append(eachWrapper.get(kTableHref))
+        link = eachWrapper.get(kTableHref)
+        if(isNotProjectLink(link)):
+            continue
+        listOfLinks.append(link)
     return listOfLinks
+
+# Removes links that, instead of pointing to
+# individual project pages, point to images.
+# or pdf files
+def isNotProjectLink(link):
+    if re.search(".jpg", link) or re.search(".pdf", link) or re.search(".xlsx", link):
+       return True
 
 '''
 This routine takes in a list of 
