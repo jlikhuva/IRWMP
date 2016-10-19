@@ -83,6 +83,7 @@ into a list that is returned to the caller.
 </tr>
 '''
 def getProjectUrls(bsObject):
+    ''' We can find all table rows and extract the project type here.'''
     listOfLinks = []
     table = bsObject.find('table', {'class': kTableClassName})
     linkWrappers = table.findAll(kHtmlLink)
