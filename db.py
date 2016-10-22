@@ -24,7 +24,7 @@ kHeadingNames = [
     'Critical Impacts',
     'Benefits',
     'Cost',
-    # 'Funding Source',
+    'Funding Source',
     'Sponsor Agency',
     'Drinking Water Supply?',
     'Water Quality Improvement?',

@@ -31,30 +31,29 @@ def extractAndLogData(url, index, writer):
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
         print "Could not create BeautifulSoup Object. Abort"
-        index -= 1  # This method sucks. Change it.
-        return
+        return 0
 
     title = bswrapper.extractHeading(bsobj)  # should log this
     if title is None:
-        index -= 1
-        return
+        return 0
     else:
         csvString = []
         addToken(csvString, str(index))
+
+        title = nonAsciiRemove(splitJoin(title))
         addToken(csvString, title)
 
         abstract = extractAbstract(bsobj)  # should log this in abstract.txt
         if abstract is None:
-            index -= 1
-            return
+            return 0
+        abstract = nonAsciiRemove(splitJoin(abstract))
         addToken(csvString, abstract.strip())
         '''
         Extract individual metadatum, removing whitespace and commas.
         '''
         metadata = extractMetadata(bsobj)
         if metadata is None:
-            index -= 1
-            return
+            return 0
 
         location = metadata[2].strip() + " | " + metadata[3]
         location = location.replace(",", ";").strip()
@@ -71,19 +70,32 @@ def extractAndLogData(url, index, writer):
         locationDescr = metadata[9].replace(",", "").strip()
         addToken(csvString, locationDescr)
 
-        projectTypeDescr = extractProjectTypeDescr(bsobj)
+        '''
+        Gather data from the main body
+        '''
+        projectTypeDescr = splitJoin(extractProjectTypeDescr(bsobj))
+        projectTypeDescr = nonAsciiRemove(projectTypeDescr)
+        # print projectTypeDescr
         addToken(csvString, projectTypeDescr)
 
-        detailedDescr = extractDetailedDescr(bsobj)
+        detailedDescr = splitJoin(extractDetailedDescr(bsobj))
+        detailedDescr = nonAsciiRemove(detailedDescr)
+        # print detailedDescr
         addToken(csvString, detailedDescr)
 
-        projectNeed = extractProjectNeed(bsobj)
+        projectNeed = splitJoin(extractProjectNeed(bsobj))
+        projectNeed = nonAsciiRemove(projectNeed)
+        # print  projectNeed
         addToken(csvString, projectNeed)
 
-        criticalImpacts = extractCriticalImpacts(bsobj)
+        criticalImpacts = splitJoin(extractCriticalImpacts(bsobj))
+        criticalImpacts = nonAsciiRemove(criticalImpacts)
+        # print criticalImpacts
         addToken(csvString, criticalImpacts)
 
-        benefits = extractProjectBenefits(bsobj)
+        benefits = splitJoin(extractProjectBenefits(bsobj))
+        benefits = nonAsciiRemove(benefits)
+        # print benefits
         addToken(csvString, benefits)
 
         cost = " "  # extractCost(bsobj)
@@ -195,6 +207,14 @@ def addToken(csvString, token):
     csvString.append(token)
 
 
+def splitJoin(str):
+    return " ".join(str.split())
+
+
+def nonAsciiRemove(str):
+    return ''.join([i if ord(i) < 128 else ' ' for i in str])
+
+
 def main():
     initDB(kDB, kHeadingNames)
     urls = getAllProjectURLS()
@@ -202,8 +222,10 @@ def main():
     f = io.open(kDB, "ab")
     writer = db.csv.writer(f, dialect="dialect", encoding=db.kDefaultEncoding)
     for each in urls:
-        extractAndLogData(each, index, writer)
-        index += 1
+        if extractAndLogData(each, index, writer) is None:
+            index += 1
+        else:
+            pass
     f.close()
 
 
