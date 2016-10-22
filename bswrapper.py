@@ -33,19 +33,21 @@ kFunctionalAreas = "functionalAreas.txt"
 kSponsorAgencies = "sponsorAgencies.txt"
 kParticipants = "participatingOrganizations.txt"
 
-
 '''
 Fetches the html text stored at url. url
 is expected to be a valid location. If not
 this procedure ruturns None. The caller must test
 to ensure that the returned object is not None.
 '''
+
+
 def fetchHTML(url):
     try:
         html = urlopen(url)
     except HTTPError as e:
         return None
     return html
+
 
 '''
 provided html is valid html text, this procedure 
@@ -54,12 +56,15 @@ to parse. None is returned if an excetion is raised. As
 such, the caller needs to check that the returned object
 is not None.
 '''
+
+
 def generateBeautifulSoupObject(html):
     try:
-        bsObject = BeautifulSoup(html, 'html.parser') #from the bs4 3rd part library
+        bsObject = BeautifulSoup(html, 'html.parser')  # from the bs4 3rd part library
     except AttributeError as e:
         return None
     return bsObject
+
 
 '''
 This routine takes the beautiful soup object generated above
@@ -67,7 +72,7 @@ and gathers from it links to the listed projects. The links are packaged
 into a list that is returned to the caller.
 '''
 
-#This is how a single url element looks like in html.
+# This is how a single url element looks like in html.
 '''
 <tr class="even"> |class= "odd" if odd|
   <td>
@@ -82,6 +87,8 @@ into a list that is returned to the caller.
   <td>Project</td>
 </tr>
 '''
+
+
 def getProjectUrls(bsObject):
     ''' We can find all table rows and extract the project type here.'''
     listOfLinks = []
@@ -89,17 +96,19 @@ def getProjectUrls(bsObject):
     linkWrappers = table.findAll(kHtmlLink)
     for eachWrapper in linkWrappers:
         link = eachWrapper.get(kTableHref)
-        if(isNotProjectLink(link)):
+        if (isNotProjectLink(link)):
             continue
         listOfLinks.append(link)
     return listOfLinks
+
 
 # Removes links that, instead of pointing to
 # individual project pages, point to images.
 # or pdf files
 def isNotProjectLink(link):
     if re.search(".jpg", link) or re.search(".pdf", link) or re.search(".xlsx", link):
-       return True
+        return True
+
 
 '''
 This routine takes in a list of 
@@ -107,12 +116,14 @@ valid URLs. It then proceeds to
 collect the needed data from the pages
 pointed to by the locators.
 '''
+
+
 def scrapeEachProjectPage(urlList):
     for eachUrl in urlList:
         html = fetchHTML(eachUrl)
         bSoupObject = generateBeautifulSoupObject(html)
         extractAndStoreDataFromProjectPage(bSoupObject)
-        
+
 
 '''
 This dictionary provides a way to compactly locate
@@ -120,20 +131,22 @@ the position of the data we want to extract from the
 list of data objects returned by findAll.
 '''
 dataPositions = {
-    "kAbstractPos" : 0,
-    "kProjectDescr" : 9,
-    "kFuncAreasPos" : 10,
+    "kAbstractPos": 0,
+    "kProjectDescr": 9,
+    "kFuncAreasPos": 10,
     "kElemOfLarger": 12,
     "kReduceWaterSupply": 19,
-    "kAdjToDisadvComm" : 20,
-    "kDisadvCommPartic" : 21,
-    "kSponsorAgency" : 41,
-    "kParticipatingOrgs" : 42
+    "kAdjToDisadvComm": 20,
+    "kDisadvCommPartic": 21,
+    "kSponsorAgency": 41,
+    "kParticipatingOrgs": 42
 }
 
 '''
 Helper routine that does the actual scraping.
 '''
+
+
 def extractAndStoreDataFromProjectPage(bsObject):
     #    |PART 1|
     title = extractHeading(bsObject)
@@ -178,7 +191,7 @@ def extractAndStoreDataFromProjectPage(bsObject):
     storeThisProjectsFunctionalAreas(functionalAreas, title)
     storeThisProjectsSponsorAgencies(sponsorAgency, title)
     storeThisProjectsParticipatingOrgs(participatingOrgs, title)
-    
+
     # The data set that we have has a LOT of 'noise', that is, a lot
     # of would be useful data that is missing. At a point in time when
     # we are dealing with documents in which that data is present, the routines
@@ -223,20 +236,23 @@ def extractAndStoreDataFromProjectPage(bsObject):
     projectBenefitsFile = getProjectBenefitsFile(bsObject)
     '''
 
+
 def extractHeading(bsobj):
-    heading = bsobj.findAll(kProjectHeadingSizeDesc, {"class" : kProjectHeadingClass})
+    heading = bsobj.findAll(kProjectHeadingSizeDesc, {"class": kProjectHeadingClass})
     try:
         return heading[0].get_text()
     except:
         print "Error parsing page, you might need to log in"
         return None
 
+
 def extractAllText(bsObject):
     textList = []
-    fieldWrapper = bsObject.findAll("div", {"class" : kFieldClass})
+    fieldWrapper = bsObject.findAll("div", {"class": kFieldClass})
     for paragraph in fieldWrapper:
         textList.append(paragraph.get_text())
     return textList
+
 
 def addProjectNameToProjectList(title):
     try:
@@ -244,11 +260,13 @@ def addProjectNameToProjectList(title):
         f.write(title)
         f.write("\n")
     except:
-        pass #ignoring errors for now
+        pass  # ignoring errors for now
     f.close()
 
+
 def generatePathFromCur(dirName):
-    return "./"+dirName
+    return "./" + dirName
+
 
 def createThisProjectsDirectory(dirName):
     path = generatePathFromCur(dirName)
@@ -257,16 +275,19 @@ def createThisProjectsDirectory(dirName):
             os.makedirs(path)
         except OSError as e:
             sys.exit("Failed to create directory: " + dirName)
-            
+
+
 def storeThisProjectsAbstract(abstractText, where):
     path = generatePathFromCur(where)
     with io.open(os.path.join(path, kAbstractName), "w", encoding='utf-8') as abstractFile:
         try:
             abstractFile.write(abstractText)
         except:
-            abstractFile.write("Encoding scheme error. Need to find way around this") # Ignore errors arising from encoding schemes
+            abstractFile.write(
+                "Encoding scheme error. Need to find way around this")  # Ignore errors arising from encoding schemes
         abstractFile.close()
-        
+
+
 def storeThisProjectsDescription(descriptionText, where):
     path = generatePathFromCur(where)
     with io.open(os.path.join(path, kProjectTypeDescr), "w", encoding='utf-8') as descriptionFile:
@@ -275,7 +296,8 @@ def storeThisProjectsDescription(descriptionText, where):
         except:
             pass
         descriptionFile.close()
-        
+
+
 def storeThisProjectsFunctionalAreas(funcAreasText, where):
     path = generatePathFromCur(where)
     with io.open(os.path.join(path, kFunctionalAreas), "w", encoding='utf-8') as funcAreasFile:
@@ -284,7 +306,8 @@ def storeThisProjectsFunctionalAreas(funcAreasText, where):
         except:
             pass
         funcAreasFile.close()
-        
+
+
 def storeThisProjectsSponsorAgencies(sponsorAgenciesText, where):
     path = generatePathFromCur(where)
     with io.open(os.path.join(path, kSponsorAgencies), "w", encoding='utf-8') as sponsorAgenciesFile:
@@ -293,7 +316,8 @@ def storeThisProjectsSponsorAgencies(sponsorAgenciesText, where):
         except:
             pass
         sponsorAgenciesFile.close()
-        
+
+
 def storeThisProjectsParticipatingOrgs(participantsText, where):
     path = generatePathFromCur(where)
     with io.open(os.path.join(path, kParticipants), "w", encoding='utf-8') as participantsFile:
@@ -302,14 +326,16 @@ def storeThisProjectsParticipatingOrgs(participantsText, where):
         except:
             pass
         participantsFile.close()
-         
+
+
 def main():
-   firstPageHtml = fetchHTML(kBaseUrl)
-   secondPageHtml = fetchHTML(kSecondPageUrl)
-   firstPageBsObject = generateBeautifulSoupObject(firstPageHtml)
-   secondPageBsObject = generateBeautifulSoupObject(secondPageHtml)
-   urlList = getProjectUrls(firstPageBsObject) + getProjectUrls(secondPageBsObject)
-   scrapeEachProjectPage(urlList)
+    firstPageHtml = fetchHTML(kBaseUrl)
+    secondPageHtml = fetchHTML(kSecondPageUrl)
+    firstPageBsObject = generateBeautifulSoupObject(firstPageHtml)
+    secondPageBsObject = generateBeautifulSoupObject(secondPageHtml)
+    urlList = getProjectUrls(firstPageBsObject) + getProjectUrls(secondPageBsObject)
+    scrapeEachProjectPage(urlList)
+
 
 if __name__ == "__main__":
     main()
