@@ -26,14 +26,14 @@ kHeadingNames = [
     'Cost',
     'Funding Source',
     'Sponsor Agency',
-    'Drinking Water Supply?',
-    'Water Quality Improvement?',
-    'Water Reuse/Recycling?',
-    'Stormwater Improvements?',
-    'Groundwater Benefits?',
-    'Infiltration?',
-    'Habitat Protection and Restoration?',
-    'Flood Protection?'
+    'Drinking Water Supply',
+    'Water Quality Improvement',
+    'Water Reuse/Recycling',
+    'Stormwater Improvements',
+    'Groundwater Benefits',
+    'Infiltration',
+    'Habitat Protection and Restoration',
+    'Flood Protection'
 ]
 
 csv.register_dialect(

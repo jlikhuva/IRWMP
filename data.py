@@ -31,11 +31,11 @@ def extractAndLogData(url, index, writer):
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
         print "Could not create BeautifulSoup Object. Abort"
-        return 0
+        return
 
     title = bswrapper.extractHeading(bsobj)  # should log this
     if title is None:
-        return 0
+        return
     else:
         csvString = []
         addToken(csvString, str(index))
@@ -45,7 +45,7 @@ def extractAndLogData(url, index, writer):
 
         abstract = extractAbstract(bsobj)  # should log this in abstract.txt
         if abstract is None:
-            return 0
+            return
         abstract = nonAsciiRemove(splitJoin(abstract))
         addToken(csvString, abstract.strip())
         '''
@@ -53,7 +53,7 @@ def extractAndLogData(url, index, writer):
         '''
         metadata = extractMetadata(bsobj)
         if metadata is None:
-            return 0
+            return
 
         location = metadata[2].strip() + " | " + metadata[3]
         location = location.replace(",", ";").strip()
@@ -108,8 +108,41 @@ def extractAndLogData(url, index, writer):
         addToken(csvString, sponsorAgencies)
 
         projectTypeList = extractProjectTypeList(bsobj)
-
+        csvString = csvString + getProjectTypeBitset(projectTypeList)
         writeData(csvString, writer)
+
+
+def getProjectTypeBitset(list):
+    # 'Drinking Water Supply?',
+    # 'Water Quality Improvement?',
+    # 'Water Reuse/Recycling?',
+    # 'Stormwater Improvements?',
+    # 'Groundwater Benefits?',
+    # 'Infiltration?',
+    # 'Habitat Protection and Restoration?',
+    # 'Flood Protection?'
+    bitset = [0, 0, 0, 0, 0, 0, 0, 0]
+    for each in list:
+        list.remove(each)
+        each = nonAsciiRemove(each)
+        list.append(each)
+    if db.kHeadingNames[16] in list:
+        bitset[0] = 1
+    if db.kHeadingNames[17] in list:
+        bitset[1] = 1
+    if db.kHeadingNames[18] in list:
+        bitset[2] = 1
+    if db.kHeadingNames[19] in list:
+        bitset[3] = 1
+    if db.kHeadingNames[20] in list:
+        bitset[4] = 1
+    if db.kHeadingNames[21] in list:
+        bitset[5] = 1
+    if db.kHeadingNames[22] in list:
+        bitset[6] = 1
+    if db.kHeadingNames[23] in list:
+        bitset[7] = 1
+    return bitset
 
 
 def extractProjectNeed(bsobj):
@@ -168,7 +201,7 @@ def extractAbstract(bsobj):
     if abstractArea is None:
         print "The document has no abstract section"
         return
-    abstractText = abstractArea.findAll(bswrapper.kParagraph);
+    abstractText = abstractArea.findAll(bswrapper.kParagraph)
     if abstractText is None:
         print "No abstract text found"  # The empty string is not None
 
@@ -226,6 +259,7 @@ def main():
             index += 1
         else:
             pass
+        
     f.close()
 
 
