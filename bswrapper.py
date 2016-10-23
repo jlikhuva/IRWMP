@@ -1,7 +1,7 @@
 '''
 Collects data from 121 archived projects carried
 out by the BayArea Integrated Water Management plan.
-The module also organizes the data into groups and
+The module Lalso organizes the data into groups and
 stores them.
 '''
 import sys

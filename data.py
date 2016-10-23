@@ -17,6 +17,8 @@ kTableData = "td"
 kFirstElem = 0
 kCriticalImpacts = "Discuss critical impacts that will occur if the proposal is not implemented:"
 
+ProjectList = []
+
 # URLS to various sections in the project list.
 URLS = [
     "http://bairwmp.org/projects",
@@ -248,9 +250,39 @@ def nonAsciiRemove(str):
     return ''.join([i if ord(i) < 128 else ' ' for i in str])
 
 
+def extractLinks_Recursive():
+    urlList = []
+    for each in URLS:
+        html = bswrapper.fetchHTML(each)
+        bsobj = bswrapper.generateBeautifulSoupObject(html)
+        ls = bsobj.findAll("tr", {"class": "even"})
+        ls += bsobj.findAll("tr", {"class": "odd"})
+
+        if len(ls) == 0 or ls is None:
+            continue
+
+        for wrapper in ls:
+            sls = wrapper.findAll("td")
+
+            url = sls[0].find("a").get("href")
+            title = sls[0].get_text().strip()
+            secondEntry = sls[1].get_text()
+            # print title
+            # print url
+            # print "Project Type is " + secondEntry
+            if secondEntry == "Project":
+                # print"I'm adding it"
+                urlList.append(url)
+                ProjectList.append(title)
+            elif secondEntry == "Folder":
+                URLS.append(url)
+    return urlList
+
+
 def main():
     initDB(kDB, kHeadingNames)
-    urls = getAllProjectURLS()
+    urls = extractLinks_Recursive()  # getAllProjectURLS()
+    print len(urls)
     index = 0
     f = io.open(kDB, "ab")
     writer = db.csv.writer(f, dialect="dialect", encoding=db.kDefaultEncoding)
@@ -259,7 +291,7 @@ def main():
             index += 1
         else:
             pass
-        
+
     f.close()
 
 
