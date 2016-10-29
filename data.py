@@ -9,6 +9,8 @@ import bswrapper
 from urllib2 import urlopen
 from urllib2 import HTTPError
 from bs4 import BeautifulSoup
+import progressbar as pb
+from  progressbar import Bar, Percentage
 from db import writeLine, kDB, kHeadingNames
 
 # Konstants
@@ -16,7 +18,7 @@ kMetaTableName = "vertical listing"
 kTableData = "td"
 kFirstElem = 0
 kCriticalImpacts = "Discuss critical impacts that will occur if the proposal is not implemented:"
-
+kErrLogFile = "errors.txt"
 ProjectList = []
 
 # URLS to various sections in the project list.
@@ -33,11 +35,11 @@ def extractAndLogData(url, index, writer):
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
         print "Could not create BeautifulSoup Object. Abort"
-        return
+        return 0
 
     title = bswrapper.extractHeading(bsobj)  # should log this
     if title is None:
-        return
+        return 0
     else:
         csvString = []
         addToken(csvString, str(index))
@@ -47,18 +49,20 @@ def extractAndLogData(url, index, writer):
 
         abstract = extractAbstract(bsobj)  # should log this in abstract.txt
         if abstract is None:
-            return
+            return 0
         abstract = nonAsciiRemove(splitJoin(abstract))
         addToken(csvString, abstract.strip())
+
         '''
         Extract individual metadatum, removing whitespace and commas.
         '''
         metadata = extractMetadata(bsobj)
         if metadata is None:
-            return
+            return 0
 
         location = metadata[2].strip() + " | " + metadata[3]
         location = location.replace(",", ";").strip()
+        location = nonAsciiRemove(splitJoin(location))
         addToken(csvString, location)
 
         locationLatLong = metadata[6].replace(",", " |").strip()
@@ -70,6 +74,7 @@ def extractAndLogData(url, index, writer):
         addToken(csvString, endDate)
 
         locationDescr = metadata[9].replace(",", "").strip()
+        locationDescr = nonAsciiRemove(splitJoin(locationDescr))
         addToken(csvString, locationDescr)
 
         '''
@@ -201,11 +206,12 @@ def extractMetadata(bsobj):
 def extractAbstract(bsobj):
     abstractArea = bsobj.find("div", {"class": bswrapper.kFieldClass})
     if abstractArea is None:
-        print "The document has no abstract section"
+        "The document has no abstract section"
         return
     abstractText = abstractArea.findAll(bswrapper.kParagraph)
     if abstractText is None:
         print "No abstract text found"  # The empty string is not None
+        return
 
     if len(abstractText) == 0:
         abst = bsobj.find(bswrapper.kParagraph, {"class": "documentDescription"})
@@ -282,17 +288,19 @@ def extractLinks_Recursive():
 def main():
     initDB(kDB, kHeadingNames)
     urls = extractLinks_Recursive()  # getAllProjectURLS()
-    print len(urls)
+    # print len(urls)
+    # print  len(ProjectList)
     index = 0
     f = io.open(kDB, "ab")
+    errfile = io.open(kErrLogFile, "w")
     writer = db.csv.writer(f, dialect="dialect", encoding=db.kDefaultEncoding)
     for each in urls:
         if extractAndLogData(each, index, writer) is None:
             index += 1
         else:
             pass
-
     f.close()
+    errfile.close()
 
 
 if __name__ == "__main__":

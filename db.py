@@ -7,6 +7,7 @@ import io
 import unicodecsv as csv
 
 kDefautlOpeningFmt = 'wb'
+kDefautlReadingFmt = 'rt'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
@@ -46,18 +47,37 @@ csv.register_dialect(
     escapechar='\\',
     quoting=csv.QUOTE_ALL
 )
+
+'''
+Routines to standardize reading from
+and writing to this db
+These functions return a list
+with ls[0] as the reader/writer and
+ls[1] as the open file handle that
+one can close by calling closeDB(ls[1])
+'''
+def createReader(dbname):
+    dbname = io.open(dbname, kDefautlReadingFmt)
+    reader = csv.reader(dbname, dialect="dialect", encoding=kDefaultEncoding)
+    ls = [reader, dbname]
+    return ls
+
+def createWriter(dbname):
+    dbname = io.open(dbname, kDefautlOpeningFmt)
+    writer = csv.writer(dbname, dialect="dialect", encoding=kDefaultEncoding)
+    ls = [writer, dbname]
+    return ls
+
+def closeDB(handle):
+    handle.close()
+
 '''
 Writes a single row into the CSV database.
 csvFile   -- The "database"
 dataArray -- A single row of data.
 Message   -- A string to be printed to the console.
 '''
-
-
 def writeLine(csvFile, dataArray, message):
     print message
-    f = io.open(csvFile, kDefautlOpeningFmt)
-    csvWriter = csv.writer(f, dialect="dialect", encoding=kDefaultEncoding)
+    csvWriter = createWriter(kDB)
     csvWriter.writerow(dataArray)
-    f.close()
-    print "all [OK]"
