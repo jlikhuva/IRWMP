@@ -34,7 +34,7 @@ URLS = [
 ]
 
 
-def extractAndLogData(url, writer):
+def extractAndLogData(url, index,  writer):
     html = bswrapper.fetchHTML(url)
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
@@ -303,7 +303,7 @@ def main():
     #     futureResults = {executor.submit(extractAndLogData, url):url for url in urls}
 
     for each in urls:
-        if extractAndLogData(each, ls[0]) is None:
+        if extractAndLogData(each, index, ls[0]) is None:
             index += 1
         else:
             pass
