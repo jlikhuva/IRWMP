@@ -7,7 +7,7 @@ import io
 import unicodecsv as csv
 
 kDefautlOpeningFmt = 'wb'
-kDefautlReadingFmt = 'rt'
+kDefautlReadingFmt = 'rb'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
@@ -68,8 +68,8 @@ def createWriter(dbname):
     ls = [writer, dbname]
     return ls
 
-def closeDB(handle):
-    handle.close()
+def closeDB(dbname):
+    dbname.close()
 
 '''
 Writes a single row into the CSV database.
@@ -80,4 +80,5 @@ Message   -- A string to be printed to the console.
 def writeLine(csvFile, dataArray, message):
     print message
     csvWriter = createWriter(kDB)
-    csvWriter.writerow(dataArray)
+    csvWriter[0].writerow(dataArray)
+    csvWriter[1].close()

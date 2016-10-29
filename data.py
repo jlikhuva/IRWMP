@@ -13,6 +13,10 @@ import progressbar as pb
 from  progressbar import Bar, Percentage
 from db import writeLine, kDB, kHeadingNames
 
+# from concurrent.futures import ProcessPoolExecutor
+# import concurrent.futures
+# import time
+
 # Konstants
 kMetaTableName = "vertical listing"
 kTableData = "td"
@@ -30,7 +34,7 @@ URLS = [
 ]
 
 
-def extractAndLogData(url, index, writer):
+def extractAndLogData(url, writer):
     html = bswrapper.fetchHTML(url)
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
@@ -288,19 +292,23 @@ def extractLinks_Recursive():
 def main():
     initDB(kDB, kHeadingNames)
     urls = extractLinks_Recursive()  # getAllProjectURLS()
-    # print len(urls)
-    # print  len(ProjectList)
+
     index = 0
     f = io.open(kDB, "ab")
-    errfile = io.open(kErrLogFile, "w")
-    writer = db.csv.writer(f, dialect="dialect", encoding=db.kDefaultEncoding)
+    # errfile = io.open(kErrLogFile, "w")
+    ls = db.createWriter(kDB)
+
+    # !Python 3
+    # with ProcessPoolExecutor(max_workers = 10) as executor:
+    #     futureResults = {executor.submit(extractAndLogData, url):url for url in urls}
+
     for each in urls:
-        if extractAndLogData(each, index, writer) is None:
+        if extractAndLogData(each, ls[0]) is None:
             index += 1
         else:
             pass
-    f.close()
-    errfile.close()
+    ls[1].close()
+    # errfile.close()
 
 
 if __name__ == "__main__":
