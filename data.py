@@ -1,6 +1,5 @@
 # This package takes care of data
 # collection.
-
 import sys
 import os
 import io
@@ -12,6 +11,9 @@ from bs4 import BeautifulSoup
 import progressbar as pb
 from  progressbar import Bar, Percentage
 from db import writeLine, kDB, kHeadingNames
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
+
 
 # from concurrent.futures import ProcessPoolExecutor
 # import concurrent.futures
@@ -34,7 +36,7 @@ URLS = [
 ]
 
 
-def extractAndLogData(url, index,  writer):
+def extractAndLogData(url, writer):
     html = bswrapper.fetchHTML(url)
     bsobj = bswrapper.generateBeautifulSoupObject(html)
     if bsobj is None:
@@ -46,7 +48,7 @@ def extractAndLogData(url, index,  writer):
         return 0
     else:
         csvString = []
-        addToken(csvString, str(index))
+        # addToken(csvString, str(index))
 
         title = nonAsciiRemove(splitJoin(title))
         addToken(csvString, title)
@@ -109,11 +111,11 @@ def extractAndLogData(url, index,  writer):
         # print benefits
         addToken(csvString, benefits)
 
-        cost = " "  # extractCost(bsobj)
-        addToken(csvString, cost)
+        # cost = " "  # extractCost(bsobj)
+        # addToken(csvString, cost)
 
-        fundingSrc = ""
-        addToken(csvString, fundingSrc)
+        # fundingSrc = ""
+        # addToken(csvString, fundingSrc)
 
         sponsorAgencies = metadata[1].replace(",", "\n").strip()
         addToken(csvString, sponsorAgencies)
@@ -137,21 +139,21 @@ def getProjectTypeBitset(list):
         list.remove(each)
         each = nonAsciiRemove(each)
         list.append(each)
-    if db.kHeadingNames[16] in list:
+    if db.kHeadingNames[14] in list:
         bitset[0] = 1
-    if db.kHeadingNames[17] in list:
+    if db.kHeadingNames[15] in list:
         bitset[1] = 1
-    if db.kHeadingNames[18] in list:
+    if db.kHeadingNames[16] in list:
         bitset[2] = 1
-    if db.kHeadingNames[19] in list:
+    if db.kHeadingNames[17] in list:
         bitset[3] = 1
-    if db.kHeadingNames[20] in list:
+    if db.kHeadingNames[18] in list:
         bitset[4] = 1
-    if db.kHeadingNames[21] in list:
+    if db.kHeadingNames[19] in list:
         bitset[5] = 1
-    if db.kHeadingNames[22] in list:
+    if db.kHeadingNames[20] in list:
         bitset[6] = 1
-    if db.kHeadingNames[23] in list:
+    if db.kHeadingNames[21] in list:
         bitset[7] = 1
     return bitset
 
@@ -298,12 +300,12 @@ def main():
     # errfile = io.open(kErrLogFile, "w")
     ls = db.createWriter(kDB)
 
-    # !Python 3
-    # with ProcessPoolExecutor(max_workers = 10) as executor:
-    #     futureResults = {executor.submit(extractAndLogData, url):url for url in urls}
+    #
+    # with ThreadPoolExecutor(max_workers = 5) as executor:
+    #     futureResults = {executor.submit(extractAndLogData, url, ls[0]):url for url in urls}
 
     for each in urls:
-        if extractAndLogData(each, index, ls[0]) is None:
+        if extractAndLogData(each, ls[0]) is None:
             index += 1
         else:
             pass
