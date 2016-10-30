@@ -8,8 +8,8 @@ import bswrapper
 from urllib2 import urlopen
 from urllib2 import HTTPError
 from bs4 import BeautifulSoup
-import progressbar as pb
-from  progressbar import Bar, Percentage
+# import progressbar as pb
+# from  progressbar import Bar, Percentage
 from db import writeLine, kDB, kHeadingNames
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
