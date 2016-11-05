@@ -7,42 +7,57 @@ import numpy as np
 import pandas as pd
 from nltk.stem.snowball import SnowballStemmer as ss
 import re, os, codecs, sklearn, mpld3, csv, hashlib
-import db
+import db, data
+from difflib import SequenceMatcher as sm
 
 '''
 Global data objects that we
 use throughout this module. They
 are mostly data containers.
 '''
+kFundedProjects = "FundedProjects.csv"
 
 '''
-Returns a list of all the
-data stored at the column
-whose heading is specified
-by the given index
+Creates a dictionary by reading the csv file
+identified by dbname.
 '''
+def createDictionary(dbname):
+    dictToReturn = {}
+
+    readerHandle = db.createReader(dbname)
+    for row in readerHandle[0]:
+        # print row
+        dictToReturn[row[0]] = row[1:]
+
+    db.closeDB(readerHandle[1])
+    return dictToReturn
 
 
-def getColumnData(pandasObject, colName):
-    return pandasObject[0:4]
-
+def getNearestMatchIn(word, list):
+    curClosest = None
+    ratio = 0.0
+    for each in list:
+        curr_ratio = sm(None, word, each).ratio()
+        if(curr_ratio > ratio):
+            curClosest = each
+            ratio = curr_ratio
+    if ratio > 0.76:
+        return curClosest
 
 def main():
-    headings = []
-    projects = {}
-    readerHandle = db.createReader(db.kDB)
-    for row in readerHandle[0]:
-        headings.append(row[0])
-        # titleHash = hashlib.sha256(row[0])
-        # print titleHash
-        # th2 = hashlib.sha256(row[0])
-        # print titleHash.equals(th2)
-        projects[row[0]] = row[1:]
-        break
+    projects = createDictionary(db.kDB)
+    fundedProjects = createDictionary(kFundedProjects)
 
-    # print len(headings)
-    print projects
-    db.closeDB(readerHandle[1])
+    allProjectKeys = projects.keys()
+    ls = fundedProjects.keys()
+    inboth = []
 
+    for each in allProjectKeys:
+        nearestMatch = getNearestMatchIn(each, ls)
+        if nearestMatch  is not None:
+            print nearestMatch + " : " + each
+            # inboth.append(nearestMatch)
+    # print inboth
 
-main()
+if __name__ == "__main__":
+    main()
