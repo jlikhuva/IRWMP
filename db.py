@@ -7,11 +7,12 @@ import io
 import unicodecsv as csv
 
 kDefautlOpeningFmt = 'wb'
+kDefaultAppendFmt =  'ab'
 kDefautlReadingFmt = 'rb'
 kDefaultEncoding = 'utf-8'
 kDB = "database.csv"
 kHeadingNames = [
-    'Index',
+    # 'Index',
     'Title',
     'Abstract',
     'Locations',  # Counties and subregions
@@ -62,8 +63,8 @@ def createReader(dbname):
     ls = [reader, dbname]
     return ls
 
-def createWriter(dbname):
-    dbname = io.open(dbname, kDefautlOpeningFmt)
+def createWriter(dbname, openingFmt):
+    dbname = io.open(dbname, openingFmt)
     writer = csv.writer(dbname, dialect="dialect", encoding=kDefaultEncoding)
     ls = [writer, dbname]
     return ls
@@ -79,6 +80,6 @@ Message   -- A string to be printed to the console.
 '''
 def writeLine(csvFile, dataArray, message):
     print message
-    csvWriter = createWriter(kDB)
+    csvWriter = createWriter(kDB, kDefautlOpeningFmt)
     csvWriter[0].writerow(dataArray)
     csvWriter[1].close()

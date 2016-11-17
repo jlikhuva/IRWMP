@@ -3,6 +3,7 @@
 import sys
 import os
 import io
+import re
 import db
 import bswrapper
 from urllib2 import urlopen
@@ -13,7 +14,6 @@ from bs4 import BeautifulSoup
 from db import writeLine, kDB, kHeadingNames
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
-
 
 # from concurrent.futures import ProcessPoolExecutor
 # import concurrent.futures
@@ -71,7 +71,7 @@ def extractAndLogData(url, writer):
         location = nonAsciiRemove(splitJoin(location))
         addToken(csvString, location)
 
-        locationLatLong = metadata[6].replace(",", " |").strip()
+        locationLatLong = nonAsciiRemove(metadata[6].replace(",", " |").strip())
         addToken(csvString, locationLatLong)
 
         startDate = metadata[7]
@@ -139,38 +139,48 @@ def getProjectTypeBitset(list):
         list.remove(each)
         each = nonAsciiRemove(each)
         list.append(each)
-    if db.kHeadingNames[14] in list:
+    if db.kHeadingNames[13] in list:
         bitset[0] = 1
-    if db.kHeadingNames[15] in list:
+    if db.kHeadingNames[14] in list:
         bitset[1] = 1
-    if db.kHeadingNames[16] in list:
+    if db.kHeadingNames[15] in list:
         bitset[2] = 1
-    if db.kHeadingNames[17] in list:
+    if db.kHeadingNames[16] in list:
         bitset[3] = 1
-    if db.kHeadingNames[18] in list:
+    if db.kHeadingNames[17] in list:
         bitset[4] = 1
-    if db.kHeadingNames[19] in list:
+    if db.kHeadingNames[18] in list:
         bitset[5] = 1
-    if db.kHeadingNames[20] in list:
+    if db.kHeadingNames[19] in list:
         bitset[6] = 1
-    if db.kHeadingNames[21] in list:
+    if db.kHeadingNames[20] in list:
         bitset[7] = 1
     return bitset
 
 
 def extractProjectNeed(bsobj):
-    label = bsobj.find(text="Project Need:")
-    return label.find_parent('div').get_text().strip()
+    titleStr = 'Project Need:'
+    label = bsobj.find(text=titleStr)
+    text = label.find_parent('div').get_text().strip()
+    return text[len(titleStr):]
 
 
 def extractCriticalImpacts(bsobj):
     label = bsobj.find(text=kCriticalImpacts)
-    return label.find_parent('div').get_text().strip()
+    return label.find_parent('div').get_text().strip()[len(kCriticalImpacts):]
 
 
 def extractProjectBenefits(bsobj):
-    label = bsobj.find(text="Project Benefits:")
-    return label.find_parent('div').get_text().strip()
+    titleStr = "Project Benefits:"
+    subtitles = ['i. Water Supply (conservation, recycled water, groundwater recharge, surface storage, etc.)',
+                 'ii. Water Quality',
+                 'iii. Flood and Stormwater Management',
+                 'iv. Resource Stewardship (watershed management, habitat protection and restoration, recreation, open space, etc.)']
+    label = bsobj.find(text=titleStr)
+    str = label.find_parent('div').get_text().strip()[len(titleStr):]
+    for each in subtitles:
+        str = re.sub(each, "", str)
+    return str
 
 
 def extractCost(bsobj):
@@ -187,13 +197,15 @@ def extractProjectTypeList(bsobj):
 
 
 def extractDetailedDescr(bsobj):
-    label = bsobj.find(text="Detailed description:")
-    return label.find_parent('div').get_text().strip()
+    titleStr = "Detailed description:"
+    label = bsobj.find(text=titleStr)
+    return label.find_parent('div').get_text().strip()[len(titleStr):]
 
 
 def extractProjectTypeDescr(bsobj):
-    label = bsobj.find(text="Project Type Description:")
-    return label.find_parent('div').get_text().strip()
+    titleStr = "Project Type Description:"
+    label = bsobj.find(text=titleStr)
+    return label.find_parent('div').get_text().strip()[len(titleStr):]
 
 
 def extractMetadata(bsobj):
@@ -251,7 +263,7 @@ def writeData(data, csvWriter):
 def addToken(csvString, token):
     token = token.replace(",", "")
     token += " "
-    csvString.append(token)
+    csvString.append(token.lower())
 
 
 def splitJoin(str):
@@ -296,9 +308,9 @@ def main():
     urls = extractLinks_Recursive()  # getAllProjectURLS()
 
     index = 0
-    f = io.open(kDB, "ab")
+    # f = io.open(kDB, "ab")
     # errfile = io.open(kErrLogFile, "w")
-    ls = db.createWriter(kDB)
+    ls = db.createWriter(kDB, db.kDefaultAppendFmt)
 
     #
     # with ThreadPoolExecutor(max_workers = 5) as executor:
@@ -309,6 +321,7 @@ def main():
             index += 1
         else:
             pass
+        print  index
     ls[1].close()
     # errfile.close()
 
