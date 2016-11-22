@@ -25,7 +25,7 @@ are mostly data containers.
 '''
 kFundedProjects = "FundedProjects.csv"
 latLongVector = []
-essenceVector = []  #
+essenceVector = []
 locations = []
 sponsorAgencies = []
 stemmer = ss('english')
@@ -189,7 +189,7 @@ def createSponsorAgencyCount():
 
 def tt():
     trace = go.Scatter(
-                        x=[1, 2, 3],
+                       x=[1, 2, 3],
                        y=[1, 2, 3],
                        marker=dict(color=[ 'red', 'blue', 'green'],
                        size = [30, 80, 200]),
