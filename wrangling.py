@@ -65,11 +65,16 @@ def iplotPlotPie(dict, title):
     py.plot(fig)
 
 
-def iplotPlotBubble(dict, title):
+# def iplotPlotBubble(dict, title):
+# def iplotBar(dict, title):
 
 
 def getRandomIntList(low, high, size):
     return np.random.randint(low, high, size)
+
+
+
+
 
 
 def main():

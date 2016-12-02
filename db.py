@@ -15,7 +15,7 @@ kHeadingNames = [
     # 'Index',
     'Title',
     'Abstract',
-    'Locations',  # Counties and subregions
+    'Counties',  # Counties and subregions
     'Location (lat/long)',
     'Start Date',
     'End Date',

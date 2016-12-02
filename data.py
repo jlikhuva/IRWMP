@@ -66,7 +66,8 @@ def extractAndLogData(url, writer):
         if metadata is None:
             return 0
 
-        location = metadata[2].strip() + " | " + metadata[3]
+        # location = '''metadata[2].strip() + " | " + '''metadata[3]
+        location = metadata[3]
         location = location.replace(",", ";").strip()
         location = nonAsciiRemove(splitJoin(location))
         addToken(csvString, location)
@@ -321,7 +322,7 @@ def main():
             index += 1
         else:
             pass
-        print  index
+        # print  index
     ls[1].close()
     # errfile.close()
 
