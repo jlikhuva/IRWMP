@@ -89,27 +89,22 @@ def extractAndLogData(url, writer):
         '''
         projectTypeDescr = splitJoin(extractProjectTypeDescr(bsobj))
         projectTypeDescr = nonAsciiRemove(projectTypeDescr)
-        # print projectTypeDescr
         addToken(csvString, projectTypeDescr)
 
         detailedDescr = splitJoin(extractDetailedDescr(bsobj))
         detailedDescr = nonAsciiRemove(detailedDescr)
-        # print detailedDescr
         addToken(csvString, detailedDescr)
 
         projectNeed = splitJoin(extractProjectNeed(bsobj))
         projectNeed = nonAsciiRemove(projectNeed)
-        # print  projectNeed
         addToken(csvString, projectNeed)
 
         criticalImpacts = splitJoin(extractCriticalImpacts(bsobj))
         criticalImpacts = nonAsciiRemove(criticalImpacts)
-        # print criticalImpacts
         addToken(csvString, criticalImpacts)
 
         benefits = splitJoin(extractProjectBenefits(bsobj))
         benefits = nonAsciiRemove(benefits)
-        # print benefits
         addToken(csvString, benefits)
 
         # cost = " "  # extractCost(bsobj)
@@ -272,7 +267,7 @@ def splitJoin(str):
 
 
 def nonAsciiRemove(str):
-    return ''.join([i if ord(i) < 128 else ' ' for i in str])
+    return ''.join([i if ord(i) < 128 else '' for i in str])
 
 
 def extractLinks_Recursive():

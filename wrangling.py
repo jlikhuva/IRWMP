@@ -80,7 +80,6 @@ def getRandomIntList(low, high, size):
 def main():
     csvHandle1 = db.createReader(kFundedProjectsName)
     csvHandle2 = db.createReader(db.kDB)
-
     # compileFundedSponsorsDict(csvHandle1[0])
     compileProposedProjectsDicts(csvHandle2[0])
     # print getRandomIntList(0, 400, 400)
